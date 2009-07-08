@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Repository\SimpleRepositoryOptions.cs" />
     <Compile Include="Repository\SimpleRepositoryOptionsExtensions.cs" />
+    <Compile Include="Repository\TransactionScope.cs" />
     <Compile Include="Schema\IActiveRecord.cs" />
     <Compile Include="DataProviders\Connection.cs" />
     <Compile Include="DataProviders\DbDataProvider.cs" />
