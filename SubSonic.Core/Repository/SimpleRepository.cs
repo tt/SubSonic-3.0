@@ -208,11 +208,13 @@ namespace SubSonic.Repository
         {
             if (_options.Contains(SimpleRepositoryOptions.RunMigrations))
                 Migrate<T>();
-
-            BatchQuery batch = new BatchQuery(_provider);
+            var transactionBatch = TransactionScope.GetCurrentBatchQuery();
+            BatchQuery batch = transactionBatch ?? new BatchQuery(_provider);
             foreach(var item in items)
                 batch.QueueForTransaction(item.ToInsertQuery(_provider));
-            batch.ExecuteTransaction();
+            // Only execute if we spawned a new transaction
+            if (transactionBatch == null)
+                batch.ExecuteTransaction();
         }
 
         /// <summary>
@@ -238,14 +240,17 @@ namespace SubSonic.Repository
         {
             if (_options.Contains(SimpleRepositoryOptions.RunMigrations))
                 Migrate<T>();
-            BatchQuery batch = new BatchQuery(_provider);
+            var transactionBatch = TransactionScope.GetCurrentBatchQuery();
+            BatchQuery batch = transactionBatch ?? new BatchQuery(_provider);
             int result = 0;
             foreach(var item in items)
             {
                 batch.QueueForTransaction(item.ToUpdateQuery(_provider));
                 result++;
             }
-            batch.ExecuteTransaction();
+            // Only execute if we spawned a new transaction
+            if (transactionBatch == null)
+                batch.ExecuteTransaction();
             return result;
         }
 
@@ -286,14 +291,17 @@ namespace SubSonic.Repository
         /// <returns></returns>
         public int DeleteMany<T>(IEnumerable<T> items) where T : class, new()
         {
-            BatchQuery batch = new BatchQuery(_provider);
+            var transactionBatch = TransactionScope.GetCurrentBatchQuery();
+            BatchQuery batch = transactionBatch ?? new BatchQuery(_provider);
             int result = 0;
             foreach(var item in items)
             {
                 batch.QueueForTransaction(item.ToDeleteQuery(_provider));
                 result++;
             }
-            batch.ExecuteTransaction();
+            // Only execute if we spawned a new transaction
+            if (transactionBatch == null)
+                batch.ExecuteTransaction();
             return result;
         }
 
