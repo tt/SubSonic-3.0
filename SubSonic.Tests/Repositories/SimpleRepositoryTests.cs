@@ -275,5 +275,17 @@ namespace SubSonic.Tests.Repositories
             _repo.Add<Shwerko>(shwerko);
             Assert.True(shwerko.ID > 0);
         }
+
+		[Fact]
+		public void SimpleRepo_In_Transaction_Scope_Shouldnt_Execute_Until_Dispose()
+		{
+			var expected = _repo.All<Shwerko>().Count();
+			using (var transaction = new TransactionScope(_provider))
+			{
+				_repo.AddMany(new[] { CreateTestRecord(Guid.NewGuid()) });
+				Assert.Equal(expected, _repo.All<Shwerko>().Count());
+			}
+			Assert.Equal(expected + 1, _repo.All<Shwerko>().Count());
+		}
     }
 }
